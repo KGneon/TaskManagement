@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "tasks")
@@ -15,7 +16,7 @@ public class Task {
     private String description;
     @Enumerated(EnumType.STRING)
     private Status status;
-    private LocalDate completionDate;
+    private LocalDate expectedCompletionDate;
     @OneToMany(cascade = CascadeType.DETACH)
     @JoinTable(
             name = "tasks_users",
@@ -23,6 +24,7 @@ public class Task {
             inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
     )
     private List<User> users;
+    private Integer expectedUsersNumber;
 
     public Task() {
     }
@@ -59,12 +61,12 @@ public class Task {
         this.status = status;
     }
 
-    public LocalDate getCompletionDate() {
-        return completionDate;
+    public LocalDate getExpectedCompletionDate() {
+        return expectedCompletionDate;
     }
 
-    public void setCompletionDate(LocalDate completionDate) {
-        this.completionDate = completionDate;
+    public void setExpectedCompletionDate(LocalDate expectedCompletionDate) {
+        this.expectedCompletionDate = expectedCompletionDate;
     }
 
     public List<User> getUsers() {
@@ -73,5 +75,30 @@ public class Task {
 
     public void setUsers(List<User> users) {
         this.users = users;
+    }
+    public Integer getExpectedUsersNumber() {
+        return expectedUsersNumber;
+    }
+
+    public void setExpectedUsersNumber(Integer expectedUsersNumber) {
+        this.expectedUsersNumber = expectedUsersNumber;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return Objects.equals(id, task.id) &&
+                Objects.equals(title, task.title) &&
+                Objects.equals(description, task.description) &&
+                status == task.status &&
+                Objects.equals(expectedCompletionDate, task.expectedCompletionDate) &&
+                Objects.equals(users, task.users);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, description, status, expectedCompletionDate, users);
     }
 }
