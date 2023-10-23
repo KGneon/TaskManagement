@@ -7,13 +7,13 @@ import jakarta.validation.constraints.Pattern;
 
 public class UserDTO {
     private Integer id;
-    @NotNull(message = "{}")
+    @NotNull(message = "{user.name.notpresent}")
     @Pattern(regexp = "^[A-Za-z\\s-]*$", message = "Name must contain only letters and spaces or hyphens")
     private String name;
-    @NotNull(message = "{}")
+    @NotNull(message = "{user.name.notpresent}")
     @Pattern(regexp = "^[A-Za-z\\s-]*$", message = "Surname must contain only letters, spaces, or hyphens")
     private String surname;
-    @NotNull(message = "{}")
+    @NotNull(message = "{user.name.notpresent}")
     @Email(message = "{email.not.valid}")
     private String email;
 

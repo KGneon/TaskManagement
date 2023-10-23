@@ -18,7 +18,6 @@ public class TaskDTO {
     private String title;
     @NotNull(message = "{}")
     private String description;
-    @NotNull(message = "{}")
     @Pattern(regexp = "^(FINISHED|IN_PROGRESS|LATE_IN_PROGRESS|ASSIGNED|UNASSIGNED|CANCELLED)$")
     private Status status;
     @NotNull(message = "{}")
@@ -98,5 +97,21 @@ public class TaskDTO {
         task.setUsers(taskDTO.getUsers());
         task.setExpectedUsersNumber(taskDTO.getExpectedUsersNumber());
         return task;
+    }
+    public static Status autoCheckAndUpdateStatus(TaskDTO taskDTO) {
+        Status status = taskDTO.getStatus();
+        if(status == null) {
+            if(taskDTO.getUsers().size()<taskDTO.getExpectedUsersNumber()) taskDTO.setStatus(Status.UNASSIGNED);
+            else{
+                taskDTO.setStatus(Status.ASSIGNED);
+            }
+        }
+        else if((status == Status.ASSIGNED || status == Status.IN_PROGRESS) && taskDTO.getExpectedCompletionDate().getDayOfYear()<LocalDate.now().getDayOfYear()){
+            taskDTO.setStatus(Status.LATE_IN_PROGRESS);
+        }
+        else if(status == Status.UNASSIGNED && taskDTO.getExpectedCompletionDate().getDayOfYear()<LocalDate.now().getDayOfYear()){
+            taskDTO.setStatus(Status.CANCELLED);
+        }
+        return taskDTO.getStatus();
     }
 }

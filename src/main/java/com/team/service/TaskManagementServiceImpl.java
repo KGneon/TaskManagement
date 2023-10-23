@@ -1,5 +1,7 @@
 package com.team.service;
 
+import com.team.dto.TaskDTO;
+import com.team.dto.UserDTO;
 import com.team.exception.TaskManagementException;
 import com.team.model.Status;
 import com.team.model.Task;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,16 +31,34 @@ public class TaskManagementServiceImpl implements TaskManagementService {
         this.taskRepository = taskRepository;
     }
     @Override
-    public List<User> getUsers() throws TaskManagementException {
+    public List<UserDTO> getUsers() throws TaskManagementException {
         List<User> listOfUsers = userRepository.findAll();
-        if(listOfUsers == null || listOfUsers.isEmpty()) throw new TaskManagementException("Service.NO_USERS");
-        return listOfUsers;
+        if (listOfUsers != null && !listOfUsers.isEmpty()) {
+            List<UserDTO> listOfUsersDTO = new ArrayList<>();
+            listOfUsers.forEach(u -> {
+                UserDTO userDTO = UserDTO.createDTO(u);
+                listOfUsersDTO.add(userDTO);
+            });
+            return listOfUsersDTO;
+        } else {
+            throw new TaskManagementException("Service.NO_USERS");
+        }
     }
     @Override
-    public List<Task> getTasks() throws TaskManagementException {
+    public List<TaskDTO> getTasks() throws TaskManagementException {
         List<Task> listOfTasks = taskRepository.findAll();
-        if(listOfTasks == null || listOfTasks.isEmpty()) throw new TaskManagementException("Service.NO_TASKS");
-        return listOfTasks;
+        if (listOfTasks != null && !listOfTasks.isEmpty()) {
+            List<TaskDTO> listOfTasksDTO = new ArrayList<>();
+            listOfTasks.forEach(t -> {
+                TaskDTO taskDTO = TaskDTO.createDTO(t);
+                //verifying status:
+                taskDTO.setStatus(TaskDTO.autoCheckAndUpdateStatus(taskDTO));
+                listOfTasksDTO.add(taskDTO);
+            });
+            return listOfTasksDTO;
+        } else {
+            throw new TaskManagementException("Service.NO_TASKS");
+        }
     }
     @Override
     public User getUserById(Integer userId) throws TaskManagementException {
@@ -54,13 +75,21 @@ public class TaskManagementServiceImpl implements TaskManagementService {
         return task;
     }
     @Override
-    public void addUser(User user) throws TaskManagementException {
-        if(user != null) userRepository.save(user);
+    public void addUser(UserDTO userDTO) throws TaskManagementException {
+        if(userDTO != null) {
+            User user = UserDTO.createEntity(userDTO);
+            userRepository.save(user);
+        }
         else throw new TaskManagementException("Service.USER_IS_NULL");
     }
     @Override
-    public void addTask(Task task) throws TaskManagementException {
-        if(task != null) taskRepository.save(task);
+    public void addTask(TaskDTO taskDTO) throws TaskManagementException {
+        if(taskDTO != null){
+            //CZY DO ODDZIELNEJ METODY?
+            taskDTO.setStatus(TaskDTO.autoCheckAndUpdateStatus(taskDTO));
+            Task task = TaskDTO.createEntity(taskDTO);
+            taskRepository.save(task);
+        }
         else throw new TaskManagementException("Service.TASK_IS_NULL");
     }
     @Override
@@ -77,11 +106,26 @@ public class TaskManagementServiceImpl implements TaskManagementService {
     @Override
     public void updateUserEmail(Integer userId, String userEmail) throws TaskManagementException {
         User user = getUserById(userId);
-        user.setEmail(userEmail);
+        UserDTO userDTO = UserDTO.createDTO(user);
+        userDTO.setEmail(userEmail);
     }
-    @Override
-    public void updateTaskStatus(Integer taskId) throws TaskManagementException {
 
+    @Override
+    public void autoUpdateTaskStatus(Integer taskId) throws TaskManagementException {
+        Task task = getTaskById(taskId);
+        TaskDTO taskDTO = TaskDTO.createDTO(task);
+        taskDTO.setStatus(TaskDTO.autoCheckAndUpdateStatus(taskDTO));
+        task = TaskDTO.createEntity(taskDTO);
+        taskRepository.save(task);
+    }
+
+    @Override
+    public void manuallyUpdateTaskStatus(Integer taskId, Status status) throws TaskManagementException {
+        Task task = getTaskById(taskId);
+        TaskDTO taskDTO = TaskDTO.createDTO(task);
+        taskDTO.setStatus(status);
+        task = TaskDTO.createEntity(taskDTO);
+        taskRepository.save(task);
     }
     @Override
     public void assignUsersToTask(Integer taskId, List<Integer> listOfUsersIds) throws TaskManagementException {
@@ -98,27 +142,27 @@ public class TaskManagementServiceImpl implements TaskManagementService {
     }
     //-------------------------------------------------------------
     @Override
-    public List<User> getUsersWithNameOrSurnameOrEmailLike(String snippet) throws TaskManagementException {
+    public List<UserDTO> getUsersWithNameOrSurnameOrEmailLike(String snippet) throws TaskManagementException {
         return null;
     }
     @Override
-    public List<Task> getTasksWithTitleLike(String snippet) throws TaskManagementException {
+    public List<TaskDTO> getTasksWithTitleLike(String snippet) throws TaskManagementException {
         return null;
     }
     @Override
-    public List<Task> getTasksWithGivenStatus(Status status) throws TaskManagementException {
+    public List<TaskDTO> getTasksWithGivenStatus(Status status) throws TaskManagementException {
         return null;
     }
     @Override
-    public List<Task> getTasksWithDateAfterGivenDate(LocalDate date) throws TaskManagementException {
+    public List<TaskDTO> getTasksWithDateAfterGivenDate(LocalDate date) throws TaskManagementException {
         return null;
     }
     @Override
-    public List<Task> getTasksWithDateBeforeGivenDate(LocalDate date) throws TaskManagementException {
+    public List<TaskDTO> getTasksWithDateBeforeGivenDate(LocalDate date) throws TaskManagementException {
         return null;
     }
     @Override
-    public List<Task> getTasksWithGivenNumberOfAssignedUsers(Integer numberOfUsers) throws TaskManagementException {
+    public List<TaskDTO> getTasksWithGivenNumberOfAssignedUsers(Integer numberOfUsers) throws TaskManagementException {
         return null;
     }
 }
