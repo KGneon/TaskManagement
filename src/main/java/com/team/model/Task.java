@@ -16,6 +16,7 @@ public class Task {
     private String description;
     @Enumerated(EnumType.STRING)
     private Status status;
+    @Column(name = "end_date")
     private LocalDate expectedCompletionDate;
     @OneToMany(cascade = CascadeType.DETACH)
     @JoinTable(
@@ -24,6 +25,7 @@ public class Task {
             inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
     )
     private List<User> users;
+    @Column(name = "expected_users")
     private Integer expectedUsersNumber;
 
     public Task() {

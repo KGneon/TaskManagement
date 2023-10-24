@@ -101,15 +101,17 @@ public class TaskDTO {
     public static Status autoCheckAndUpdateStatus(TaskDTO taskDTO) {
         Status status = taskDTO.getStatus();
         if(status == null) {
-            if(taskDTO.getUsers().size()<taskDTO.getExpectedUsersNumber()) taskDTO.setStatus(Status.UNASSIGNED);
+            if(taskDTO.getUsers().size()<taskDTO.getExpectedUsersNumber()) {
+                taskDTO.setStatus(Status.UNASSIGNED);
+            }
             else{
                 taskDTO.setStatus(Status.ASSIGNED);
             }
         }
-        else if((status == Status.ASSIGNED || status == Status.IN_PROGRESS) && taskDTO.getExpectedCompletionDate().getDayOfYear()<LocalDate.now().getDayOfYear()){
+        else if((status == Status.ASSIGNED || status == Status.IN_PROGRESS) && taskDTO.getExpectedCompletionDate().isBefore(LocalDate.now())){
             taskDTO.setStatus(Status.LATE_IN_PROGRESS);
         }
-        else if(status == Status.UNASSIGNED && taskDTO.getExpectedCompletionDate().getDayOfYear()<LocalDate.now().getDayOfYear()){
+        else if(status == Status.UNASSIGNED && taskDTO.getExpectedCompletionDate().isBefore(LocalDate.now())){
             taskDTO.setStatus(Status.CANCELLED);
         }
         return taskDTO.getStatus();

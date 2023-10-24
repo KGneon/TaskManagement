@@ -1,9 +1,11 @@
 package com.team.controller;
 
+import com.team.dto.TaskDTO;
+import com.team.dto.UserDTO;
 import com.team.exception.TaskManagementException;
-import com.team.model.Task;
-import com.team.model.User;
+import com.team.model.Status;
 import com.team.service.TaskManagementService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 @CrossOrigin
 @RestController
@@ -24,54 +27,97 @@ public class TaskManagementController {
 
     //GET ALL
     @GetMapping(value="/users")
-    public ResponseEntity<List<User>> getAllUsers() throws TaskManagementException {
-        List<User> listOfUsers = taskManagementService.getUsers();
+    public ResponseEntity<List<UserDTO>> getAllUsers() throws TaskManagementException {
+        List<UserDTO> listOfUsers = taskManagementService.getUsers();
         return new ResponseEntity<>(listOfUsers, HttpStatus.OK);
     }
     @GetMapping(value="/tasks")
-    public ResponseEntity<List<Task>> getAllTasks() throws TaskManagementException {
-        List<Task> listOfTask = taskManagementService.getTasks();
+    public ResponseEntity<List<TaskDTO>> getAllTasks() throws TaskManagementException {
+        List<TaskDTO> listOfTask = taskManagementService.getTasks();
+        return new ResponseEntity<>(listOfTask, HttpStatus.OK);
+    }
+    //GET WITH FILTERS
+    @GetMapping(value="/users/search_by_name_surname_email/{snippet}")
+    public ResponseEntity<List<UserDTO>> getUsersBySnippetOfNameOrSurnamOrEmail(@PathVariable String snippet) throws TaskManagementException {
+        List<UserDTO> listOfUsers = taskManagementService.getUsersWithNameOrSurnameOrEmailLike(snippet);
+        return new ResponseEntity<>(listOfUsers, HttpStatus.OK);
+    }
+    @GetMapping(value="/tasks/search_for/{snippet}")
+    public ResponseEntity<List<TaskDTO>> getTasksByTitleNameSnippet(@PathVariable String snippet) throws TaskManagementException {
+        List<TaskDTO> listOfTask = taskManagementService.getTasksWithTitleLike(snippet);
+        return new ResponseEntity<>(listOfTask, HttpStatus.OK);
+    }
+    @GetMapping(value="/tasks/with_status/{status}")
+    public ResponseEntity<List<TaskDTO>> getTasksByStatus(@PathVariable Status status) throws TaskManagementException {
+        List<TaskDTO> listOfTask = taskManagementService.getTasksWithGivenStatus(status);
+        return new ResponseEntity<>(listOfTask, HttpStatus.OK);
+    }
+    @GetMapping(value="/tasks/after_date/{date}")
+    public ResponseEntity<List<TaskDTO>> getTasksByExpectedCompletionDateAfter(@PathVariable LocalDate date) throws TaskManagementException {
+        List<TaskDTO> listOfTask = taskManagementService.getTasksWithDateAfterGivenDate(date);
+        return new ResponseEntity<>(listOfTask, HttpStatus.OK);
+    }
+    @GetMapping(value="/tasks/before_date/{date}")
+    public ResponseEntity<List<TaskDTO>> getTasksByExpectedCompletionDateBefore(@PathVariable LocalDate date) throws TaskManagementException {
+        List<TaskDTO> listOfTask = taskManagementService.getTasksWithDateBeforeGivenDate(date);
+        return new ResponseEntity<>(listOfTask, HttpStatus.OK);
+    }
+    @GetMapping(value="/tasks/assigned_users/{number}")
+    public ResponseEntity<List<TaskDTO>> getTasksByNumberOfUsersAssigned(@PathVariable("number") Integer numberOfUsers) throws TaskManagementException {
+        List<TaskDTO> listOfTask = taskManagementService.getTasksWithGivenNumberOfAssignedUsers(numberOfUsers);
         return new ResponseEntity<>(listOfTask, HttpStatus.OK);
     }
     //POST(ADD)
     @PostMapping(value="/users/add")
-    public ResponseEntity<String> addUser(@RequestBody User user) throws TaskManagementException{
-        taskManagementService.addUser(user);
-        String message = "API.STUDENT_ADDED";
+    public ResponseEntity<String> addUser(@RequestBody @Valid UserDTO userDTO) throws TaskManagementException{
+        taskManagementService.addUser(userDTO);
+        String message = "API.USER_ADDED";
         return new ResponseEntity<>(message, HttpStatus.CREATED);
     }
     @PostMapping(value="/tasks/add")
-    public ResponseEntity<String> addTask(@RequestBody Task task) throws TaskManagementException{
-        taskManagementService.addTask(task);
-        String message = "API.STUDENT_ADDED";
+    public ResponseEntity<String> addTask(@RequestBody @Valid TaskDTO taskDTO) throws TaskManagementException{
+        taskManagementService.addTask(taskDTO);
+        String message = "API.TASK_ADDED";
         return new ResponseEntity<>(message, HttpStatus.CREATED);
     }
-    //UPDATE(PUT)
-    @PutMapping(value="/users/update")
-    public ResponseEntity<String> updateUser(@RequestBody User user) throws TaskManagementException{
-        taskManagementService.addUser(user);
-        String message = "";
-        return new ResponseEntity<>(message, HttpStatus.OK);
-    }
-    @PutMapping(value="/tasks/update")
-    public ResponseEntity<String> updateTask(@RequestBody Task task) throws TaskManagementException{
-        taskManagementService.addTask(task);
-        String message = "";
-        return new ResponseEntity<>(message, HttpStatus.OK);
-    }
+
     //DELETE
-    @DeleteMapping(value="/users/{userId}")
+    @DeleteMapping(value="/users/delete/{userId}")
     public ResponseEntity<String> deleteUser(@PathVariable Integer userId) throws TaskManagementException{
         taskManagementService.deleteUser(userId);
-        String message = "API.STUDENT_DELETED";
+        String message = "API.USER_DELETED";
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
-    @DeleteMapping(value="/task/{taskId}")
+    @DeleteMapping(value="/tasks/delete/{taskId}")
     public ResponseEntity<String> deleteTask(@PathVariable Integer taskId) throws TaskManagementException{
-        taskManagementService.deleteUser(taskId);
-        String message = "API.STUDENT_DELETED";
+        taskManagementService.deleteTask(taskId);
+        String message = "API.TASK_DELETED";
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
-
+    //UPDATE(PUT)
+    @PutMapping(value="/users/update/email/{email}")
+    public ResponseEntity<String> updateUserEmail(@PathVariable Integer userId, @PathVariable String email) throws TaskManagementException{
+        taskManagementService.updateUserEmail(userId, email);
+        String message = "API.USER_EMAIL_UPDATED";
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+    @PutMapping(value="/tasks/update/status/auto/{taskId}")
+    public ResponseEntity<String> updateTaskStatusAutomaticly(@PathVariable Integer taskId) throws TaskManagementException{
+        taskManagementService.autoUpdateTaskStatus(taskId);
+        String message = "API.TASK_STATUS_AUTOUPDATE";
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+    @PutMapping(value="/tasks/update/status/{taskId}/{status}")
+    public ResponseEntity<String> updateTaskStatusManually(@PathVariable Integer taskId, @PathVariable Status status) throws TaskManagementException{
+        taskManagementService.manuallyUpdateTaskStatus(taskId, status);
+        String message = "API.TASK_STATUS_MANUAL_UPDATE";
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+    @PutMapping(value="/tasks/update/assignement/{taskId}")
+    public ResponseEntity<String> updateTaskStatusManually(@PathVariable Integer taskId, @RequestBody List<Integer> listOfUsersIds) throws TaskManagementException{
+        taskManagementService.assignUsersToTask(taskId, listOfUsersIds);
+        String message = "API.TASK_USERS_UPDATE";
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
 
 }
