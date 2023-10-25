@@ -103,4 +103,17 @@ public class Task {
     public int hashCode() {
         return Objects.hash(id, title, description, status, expectedCompletionDate, users);
     }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", expectedCompletionDate=" + expectedCompletionDate +
+                ", users=" + users +
+                ", expectedUsersNumber=" + expectedUsersNumber +
+                '}';
+    }
 }

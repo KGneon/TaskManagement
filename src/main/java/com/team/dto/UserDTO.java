@@ -68,4 +68,14 @@ public class UserDTO {
         user.setEmail(userDTO.getEmail());
         return user;
     }
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }

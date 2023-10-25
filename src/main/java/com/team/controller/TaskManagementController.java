@@ -95,16 +95,34 @@ public class TaskManagementController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
     //UPDATE(PUT)
-    @PutMapping(value="/users/update/email/{email}")
+    @PutMapping(value="/users/update/name/{userId}/{name}")
+    public ResponseEntity<String> updateUserName(@PathVariable Integer userId, @PathVariable String name) throws TaskManagementException{
+        taskManagementService.updateUserName(userId, name);
+        String message = "API.USER_NAME_UPDATED";
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+    @PutMapping(value="/users/update/surname/{userId}/{surname}")
+    public ResponseEntity<String> updateUserSurname(@PathVariable Integer userId, @PathVariable String surname) throws TaskManagementException{
+        taskManagementService.updateUserSurname(userId, surname);
+        String message = "API.USER_SURNAME_UPDATED";
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+    @PutMapping(value="/users/update/email/{userId}/{email}")
     public ResponseEntity<String> updateUserEmail(@PathVariable Integer userId, @PathVariable String email) throws TaskManagementException{
         taskManagementService.updateUserEmail(userId, email);
         String message = "API.USER_EMAIL_UPDATED";
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
+    @PutMapping(value="/tasks/update/description/{taskId}/{description}")
+    public ResponseEntity<String> updateTaskDescription(@PathVariable Integer taskId, @PathVariable String description) throws TaskManagementException{
+        taskManagementService.updateTaskDescription(taskId, description);
+        String message = "API.TASK_DESCRIPTION_UPDATED";
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
     @PutMapping(value="/tasks/update/status/auto/{taskId}")
-    public ResponseEntity<String> updateTaskStatusAutomaticly(@PathVariable Integer taskId) throws TaskManagementException{
+    public ResponseEntity<String> updateTaskStatusAutomatically(@PathVariable Integer taskId) throws TaskManagementException{
         taskManagementService.autoUpdateTaskStatus(taskId);
-        String message = "API.TASK_STATUS_AUTOUPDATE";
+        String message = "API.TASK_STATUS_AUTO_UPDATE";
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
     @PutMapping(value="/tasks/update/status/{taskId}/{status}")
@@ -113,8 +131,20 @@ public class TaskManagementController {
         String message = "API.TASK_STATUS_MANUAL_UPDATE";
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
-    @PutMapping(value="/tasks/update/assignement/{taskId}")
-    public ResponseEntity<String> updateTaskStatusManually(@PathVariable Integer taskId, @RequestBody List<Integer> listOfUsersIds) throws TaskManagementException{
+    @PutMapping(value="/tasks/update/completion_date/{taskId}/{date}")
+    public ResponseEntity<String> updateTaskExpectedCompletionDate(@PathVariable Integer taskId, @PathVariable("date") LocalDate expectedCompletionDate) throws TaskManagementException{
+        taskManagementService.updateTaskExpectedCompletionDate(taskId, expectedCompletionDate);
+        String message = "API.TASK_EXPECTED_COMPLETION_UPDATED";
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+    @PutMapping(value="/tasks/update/description/{taskId}/{number}")
+    public ResponseEntity<String> updateTaskExpectedUsersNumber(@PathVariable Integer taskId, @PathVariable("number") Integer expectedNumberOfUsers) throws TaskManagementException{
+        taskManagementService.updateTaskExpectedUsersNumber(taskId, expectedNumberOfUsers);
+        String message = "API.TASK_EXPECTED_USERS_UPDATED";
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+    @PutMapping(value="/tasks/update/assignment/{taskId}")
+    public ResponseEntity<String> updateTaskUsersList(@PathVariable Integer taskId, @RequestBody List<Integer> listOfUsersIds) throws TaskManagementException{
         taskManagementService.assignUsersToTask(taskId, listOfUsersIds);
         String message = "API.TASK_USERS_UPDATE";
         return new ResponseEntity<>(message, HttpStatus.OK);

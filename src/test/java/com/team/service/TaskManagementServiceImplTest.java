@@ -1,68 +1,56 @@
 package com.team.service;
-
 import com.team.dto.TaskDTO;
 import com.team.dto.UserDTO;
-import com.team.model.Status;
+import com.team.mockingdata.EntityExamplesGenerator;
 import com.team.model.Task;
 import com.team.model.User;
+import com.team.repository.UserRepository;
+import com.team.utility.ExceptionAdviceController;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+@ExtendWith(MockitoExtension.class)
 class TaskManagementServiceImplTest {
 
-    @Test
-    void shouldGetTheSameValuesFromUserDTOAsFromUser() {
-        TaskManagementServiceImpl service = new TaskManagementServiceImpl(null, null);
-        User user1 = new User();
-        user1.setId(1);
-        user1.setName("Kanye");
-        user1.setSurname("Westie");
-        user1.setEmail("kanye.westie@ggmail.com");
+    private static final Log TestLOGGER = LogFactory.getLog(TaskManagementServiceImplTest.class);
 
+    @InjectMocks
+    private TaskManagementServiceImpl service;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Test
+    void testShouldGetTheSameValuesFromUserDTOAsFromUser() {
+        User user1 = EntityExamplesGenerator.generateExampleUserWithId(1);
         UserDTO userDTO1 = UserDTO.createDTO(user1);
+
+        TestLOGGER.info(user1.getName() +","+ userDTO1.getName());
+
         Assertions.assertEquals(user1.getId(), userDTO1.getId());
         Assertions.assertEquals(user1.getName(), userDTO1.getName());
         Assertions.assertEquals(user1.getSurname(), userDTO1.getSurname());
         Assertions.assertEquals(user1.getEmail(), userDTO1.getEmail());
     }
+
     @Test
-    void shouldGetTheSameValuesFromTaskDTOAsFromTask() {
-        TaskManagementServiceImpl service = new TaskManagementServiceImpl(null, null);
-        Task task1 = new Task();
-        List<User> userList = new ArrayList<>();
-
-        User user1 = new User();
-        user1.setId(1);
-        user1.setName("Kanye");
-        user1.setSurname("Westie");
-        user1.setEmail("kanye.westie@example.com");
-
-        User user2 = new User();
-        user2.setId(2);
-        user2.setName("Ken");
-        user2.setSurname("West");
-        user2.setEmail("ken.west@example.com");
-
-        userList.add(user1);
-        userList.add(user2);
-
-        task1.setId(1);
-        task1.setTitle("Title Example");
-        task1.setDescription("Dexcription example. Example description.");
-        task1.setStatus(Status.ASSIGNED);
-        task1.setExpectedCompletionDate(LocalDate.of(2023, 10, 26));
-        task1.setUsers(userList);
-        task1.setExpectedUsersNumber(2);
-
-
+    void testShouldGetTheSameValuesFromTaskDTOAsFromTaskThenTrue() {
+        List<Integer> userIdsList = Arrays.asList(1,2);
+        Task task1 = EntityExamplesGenerator.
+                generateExampleTaskWithIdAndUsersIdsList(1, userIdsList);
         TaskDTO taskDTO1 = TaskDTO.createDTO(task1);
+
         Assertions.assertEquals(task1.getId(), taskDTO1.getId());
         Assertions.assertEquals(task1.getTitle(), taskDTO1.getTitle());
         Assertions.assertEquals(task1.getDescription(), taskDTO1.getDescription());
@@ -73,7 +61,21 @@ class TaskManagementServiceImplTest {
     }
 
     @Test
-    void getUsers() {
+    void testShouldGetTheSameListOfUsersAsGivenAndCheckIfIsEmptyOrIfSizeIsTheSame() {
+
+        List<User> userList = EntityExamplesGenerator.getListOfUsers(Arrays.asList(1, 2));
+        TestLOGGER.info(userList.get(0).toString()
+                +","+ userList.get(1).toString());
+
+        when(userRepository.findAll()).thenReturn(userList);
+
+        List<UserDTO> userDTOList = service.getUsers();
+        TestLOGGER.info(userDTOList.get(0).toString()
+                +","+ userDTOList.get(1).toString());
+
+        Assertions.assertNotNull(userDTOList);
+        assertThat(userDTOList).isNotEmpty();
+        assertThat(userDTOList.size()).isEqualTo(userList.size());
     }
 
     @Test

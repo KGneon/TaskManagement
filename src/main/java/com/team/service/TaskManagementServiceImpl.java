@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,7 +24,6 @@ public class TaskManagementServiceImpl implements TaskManagementService {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
 
-    //QUALIFIER?
     @Autowired
     public TaskManagementServiceImpl(UserRepository userRepository, TaskRepository taskRepository) {
         this.userRepository = userRepository;
@@ -57,33 +55,33 @@ public class TaskManagementServiceImpl implements TaskManagementService {
         return getVerifiedTasksDTOList(listOfTasks, "Service.NO_TASKS");
     }
     @Override
-    public List<UserDTO> getUsersWithNameOrSurnameOrEmailLike(String snippet) throws TaskManagementException {
+    public List<UserDTO> getUsersWithNameOrSurnameOrEmailLike(String snippet){
         List<User> filteredUsers = userRepository.findByNameContainingOrSurnameContainingOrEmailContaining(snippet, snippet, snippet);
         return getVerifiedUsersDTOList(filteredUsers, "Service.NO_USERS_BY_TEXT");
     }
     @Override
-    public List<TaskDTO> getTasksWithTitleLike(String snippet) throws TaskManagementException {
+    public List<TaskDTO> getTasksWithTitleLike(String snippet){
         List<Task> filteredTasks = taskRepository.findByTitleContaining(snippet);
         return getVerifiedTasksDTOList(filteredTasks, "Service.NO_FILTERED_BY_TITLE");
     }
     //sssssss modify
     @Override
-    public List<TaskDTO> getTasksWithGivenStatus(Status status) throws TaskManagementException {
+    public List<TaskDTO> getTasksWithGivenStatus(Status status){
         List<Task> filteredTasks = taskRepository.findByStatus(status);
         return getVerifiedTasksDTOList(filteredTasks, "Service.NO_TASKS_BY_STATUS");
     }
     @Override
-    public List<TaskDTO> getTasksWithDateAfterGivenDate(LocalDate date) throws TaskManagementException {
+    public List<TaskDTO> getTasksWithDateAfterGivenDate(LocalDate date){
         List<Task> filteredTasks = taskRepository.findByExpectedCompletionDateAfter(date);
         return getVerifiedTasksDTOList(filteredTasks, "Service.NO_TASKS_AFTER_DATE");
     }
     @Override
-    public List<TaskDTO> getTasksWithDateBeforeGivenDate(LocalDate date) throws TaskManagementException {
+    public List<TaskDTO> getTasksWithDateBeforeGivenDate(LocalDate date){
         List<Task> filteredTasks = taskRepository.findByExpectedCompletionDateBefore(date);
         return getVerifiedTasksDTOList(filteredTasks, "Service.NO_TASKS_BEFORE_DATE");
     }
     @Override
-    public List<TaskDTO> getTasksWithGivenNumberOfAssignedUsers(Integer numberOfUsers) throws TaskManagementException {
+    public List<TaskDTO> getTasksWithGivenNumberOfAssignedUsers(Integer numberOfUsers){
         List<Task> filteredTasks = taskRepository.findByUsersSize(numberOfUsers);
         return getVerifiedTasksDTOList(filteredTasks, "Service.NO_TASKS_NUMBER_ASSIGNMENTS");
     }
@@ -131,12 +129,41 @@ public class TaskManagementServiceImpl implements TaskManagementService {
         Task task = getTaskById(id);
         taskRepository.delete(task);
     }
+
+    @Override
+    public void updateUserName(Integer userId, String userName) {
+        User user = getUserById(userId);
+        UserDTO userDTO = UserDTO.createDTO(user);
+        userDTO.setEmail(userName);
+        user = UserDTO.createEntity(userDTO);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateUserSurname(Integer userId, String userSurname) {
+        User user = getUserById(userId);
+        UserDTO userDTO = UserDTO.createDTO(user);
+        userDTO.setEmail(userSurname);
+        user = UserDTO.createEntity(userDTO);
+        userRepository.save(user);
+    }
+
     //UPDATE
     @Override
     public void updateUserEmail(Integer userId, String userEmail){
         User user = getUserById(userId);
         UserDTO userDTO = UserDTO.createDTO(user);
         userDTO.setEmail(userEmail);
+        user = UserDTO.createEntity(userDTO);
+        userRepository.save(user);
+    }
+    @Override
+    public void updateTaskDescription(Integer taskId, String description){
+        Task task = getTaskById(taskId);
+        TaskDTO taskDTO = TaskDTO.createDTO(task);
+        taskDTO.setDescription(description);
+        task = TaskDTO.createEntity(taskDTO);
+        taskRepository.save(task);
     }
     @Override
     public void autoUpdateTaskStatus(Integer taskId){
@@ -151,6 +178,22 @@ public class TaskManagementServiceImpl implements TaskManagementService {
         Task task = getTaskById(taskId);
         TaskDTO taskDTO = TaskDTO.createDTO(task);
         taskDTO.setStatus(status);
+        task = TaskDTO.createEntity(taskDTO);
+        taskRepository.save(task);
+    }
+    @Override
+    public void updateTaskExpectedCompletionDate(Integer taskId, LocalDate date){
+        Task task = getTaskById(taskId);
+        TaskDTO taskDTO = TaskDTO.createDTO(task);
+        taskDTO.setExpectedCompletionDate(date);
+        task = TaskDTO.createEntity(taskDTO);
+        taskRepository.save(task);
+    }
+    @Override
+    public void updateTaskExpectedUsersNumber(Integer taskId, Integer number){
+        Task task = getTaskById(taskId);
+        TaskDTO taskDTO = TaskDTO.createDTO(task);
+        taskDTO.setExpectedUsersNumber(number);
         task = TaskDTO.createEntity(taskDTO);
         taskRepository.save(task);
     }

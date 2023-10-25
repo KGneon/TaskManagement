@@ -116,4 +116,17 @@ public class TaskDTO {
         }
         return taskDTO.getStatus();
     }
+
+    @Override
+    public String toString() {
+        return "TaskDTO{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", expectedCompletionDate=" + expectedCompletionDate +
+                ", users=" + users +
+                ", expectedUsersNumber=" + expectedUsersNumber +
+                '}';
+    }
 }
