@@ -40,6 +40,27 @@ public class EntityExamplesGenerator {
                 user4.setSurname("May");
                 user4.setEmail("molly.may@example.com");
                 return user4;
+            case 5:
+                User user5 = new User();
+                user5.setId(4);
+                user5.setName("William");
+                user5.setSurname("Davis");
+                user5.setEmail("william.davis@example.com");
+                return user5;
+            case 6:
+                User user6 = new User();
+                user6.setId(4);
+                user6.setName("Sophia");
+                user6.setSurname("Wilson");
+                user6.setEmail("sophia.wilson@example.com");
+                return user6;
+            case 7:
+                User user7 = new User();
+                user7.setId(4);
+                user7.setName("Matthew");
+                user7.setSurname("Taylor");
+                user7.setEmail("matthew.taylor@example.com");
+                return user7;
         }
         return null;
     }
@@ -75,6 +96,16 @@ public class EntityExamplesGenerator {
                 task3.setUsers(getListOfUsers(usersIdsList));
                 task3.setExpectedUsersNumber(2);
                 return task3;
+            case 4:
+                Task task4 = new Task();
+                task4.setId(4);
+                task4.setTitle("Task 4");
+                task4.setDescription("Description for Task 4");
+                task4.setStatus(Status.IN_PROGRESS);
+                task4.setExpectedCompletionDate(LocalDate.of(2023, 10, 24));
+                task4.setUsers(getListOfUsers(usersIdsList));
+                task4.setExpectedUsersNumber(2);
+                return task4;
         }
         return null;
     }

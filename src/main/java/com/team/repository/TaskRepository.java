@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Integer> {
-    List<Task> findByTitleContaining(String title);
+    List<Task> findByTitleOrDescriptionContaining(String title, String description);
     List<Task> findByStatus(Status status);
     List<Task> findByExpectedCompletionDateAfter(LocalDate givenDate);
     List<Task> findByExpectedCompletionDateBefore(LocalDate givenDate);

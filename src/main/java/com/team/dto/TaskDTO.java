@@ -3,6 +3,7 @@ package com.team.dto;
 import com.team.model.Status;
 import com.team.model.Task;
 import com.team.model.User;
+import com.team.validation.EnumNamePattern;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
@@ -14,18 +15,20 @@ import java.util.List;
 
 public class TaskDTO {
     private Integer id;
-    @NotNull(message = "{}")
+    @NotNull(message = "task.title.notpresent")
     private String title;
-    @NotNull(message = "{}")
+    @NotNull(message = "task.description.notpresent")
     private String description;
-    @Pattern(regexp = "^(FINISHED|IN_PROGRESS|LATE_IN_PROGRESS|ASSIGNED|UNASSIGNED|CANCELLED)$")
+    //uncomment if decide adding status at the start
+    //@NotNull(message = "task.status.notpresent")
+    @EnumNamePattern(regexp = "^(FINISHED|IN_PROGRESS|LATE_IN_PROGRESS|ASSIGNED|UNASSIGNED|CANCELLED|NONE)$")
     private Status status;
-    @NotNull(message = "{}")
-    @Future(message = "{}")
+    @NotNull(message = "task.expectedcompletiondate.notpresent")
+    @Future(message = "task.expectedcompletiondate.invalid")
     private LocalDate expectedCompletionDate;
     private List<User> users;
-    @NotNull(message = "{}")
-    @Positive(message = "{}")
+    @NotNull(message = "task.expectedusersnumber.notpresent")
+    @Positive(message = "task.expectedusersnumber.invalid")
     private Integer expectedUsersNumber;
 
     public TaskDTO() {
@@ -81,7 +84,12 @@ public class TaskDTO {
         taskDTO.setId(task.getId());
         taskDTO.setTitle(task.getTitle());
         taskDTO.setDescription(task.getDescription());
+        if(task.getStatus() == null){
+            taskDTO.setStatus(Status.NONE);
+        }else{
+
         taskDTO.setStatus(task.getStatus());
+        }
         taskDTO.setExpectedCompletionDate(task.getExpectedCompletionDate());
         taskDTO.setUsers(task.getUsers());
         taskDTO.setExpectedUsersNumber(task.getExpectedUsersNumber());
@@ -92,7 +100,12 @@ public class TaskDTO {
         task.setId(taskDTO.getId());
         task.setTitle(taskDTO.getTitle());
         task.setDescription(taskDTO.getDescription());
-        task.setStatus(taskDTO.getStatus());
+        if(taskDTO.getStatus() == null){
+            task.setStatus(Status.NONE);
+        }else{
+
+            task.setStatus(taskDTO.getStatus());
+        }
         task.setExpectedCompletionDate(taskDTO.getExpectedCompletionDate());
         task.setUsers(taskDTO.getUsers());
         task.setExpectedUsersNumber(taskDTO.getExpectedUsersNumber());
